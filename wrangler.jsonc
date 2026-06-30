@@ -19,7 +19,7 @@
     {
       "binding": "DATABASE",
       "database_name": "url-shortener-db",
-      "database_id": "",
+      "database_id": "00000000-0000-0000-0000-000000000000",
       "migrations_dir": "url-shortener/backend/migrations"
     }
   ]
