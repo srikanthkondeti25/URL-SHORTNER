@@ -8,7 +8,13 @@
   },
   "assets": {
     "directory": "url-shortener/frontend/dist"
-  }
+  },
+  "kv_namespaces": [
+    {
+      "binding": "KV_BINDING",
+      "id": "41a81b8cb95b4d12956c31cecab6e11a"
+    }
+  ]
   // "compatibility_flags": [
   //   "nodejs_compat"
   // ],

@@ -6,7 +6,7 @@ import { CreateLinkSchema, LoginSchema } from 'shared'
 
 type Bindings = {
   DATABASE: D1Database;
-  KV_NAMESPACE: KVNamespace;
+  KV_BINDING: KVNamespace;
   JWT_SECRET: string;
   ADMIN_PASSWORD: string;
   BASE_URL: string;
@@ -21,14 +21,14 @@ app.use('*', secureHeaders())
 const rateLimiter = async (c: any, next: any) => {
   const ip = c.req.header('CF-Connecting-IP') || '0.0.0.0';
   const key = `rate_limit:${ip}`;
-  const currentCountStr = await c.env.KV_NAMESPACE.get(key);
+  const currentCountStr = await c.env.KV_BINDING.get(key);
   const currentCount = currentCountStr ? parseInt(currentCountStr) : 0;
 
   if (currentCount >= 10) {
     return c.json({ error: 'Too many requests. Limit 10 per minute.' }, 429);
   }
 
-  await c.env.KV_NAMESPACE.put(key, (currentCount + 1).toString(), { expirationTtl: 60 });
+  await c.env.KV_BINDING.put(key, (currentCount + 1).toString(), { expirationTtl: 60 });
   await next();
 }
 
@@ -48,7 +48,7 @@ app.get('/:shortCode', async (c) => {
 
   if (shortCode.startsWith('api')) return c.notFound(); // Skip API routes
 
-  let cachedDataStr = await c.env.KV_NAMESPACE.get(`short:${shortCode}`);
+  let cachedDataStr = await c.env.KV_BINDING.get(`short:${shortCode}`);
   let originalUrl: string | null = null;
   let linkId: number | null = null;
 
@@ -69,7 +69,7 @@ app.get('/:shortCode', async (c) => {
     originalUrl = link.original_url;
     linkId = link.id;
 
-    await c.env.KV_NAMESPACE.put(`short:${shortCode}`, JSON.stringify({ originalUrl, linkId }), { expirationTtl: 3600 });
+    await c.env.KV_BINDING.put(`short:${shortCode}`, JSON.stringify({ originalUrl, linkId }), { expirationTtl: 3600 });
   } else {
     const data = JSON.parse(cachedDataStr);
     originalUrl = data.originalUrl;
@@ -238,9 +238,9 @@ app.put('/api/link/:id', authMiddleware, async (c) => {
 
   if (result) {
     // Invalidate Cache
-    await c.env.KV_NAMESPACE.delete(`short:${result.short_code}`);
+    await c.env.KV_BINDING.delete(`short:${result.short_code}`);
     if (custom_alias) {
-       await c.env.KV_NAMESPACE.delete(`short:${custom_alias}`);
+       await c.env.KV_BINDING.delete(`short:${custom_alias}`);
     }
   }
 
@@ -257,9 +257,9 @@ app.delete('/api/link/:id', authMiddleware, async (c) => {
      const stmt = c.env.DATABASE.prepare('DELETE FROM links WHERE id = ?');
      await stmt.bind(linkId).run();
 
-     await c.env.KV_NAMESPACE.delete(`short:${link.short_code}`);
+     await c.env.KV_BINDING.delete(`short:${link.short_code}`);
      if (link.custom_alias) {
-       await c.env.KV_NAMESPACE.delete(`short:${link.custom_alias}`);
+       await c.env.KV_BINDING.delete(`short:${link.custom_alias}`);
      }
   }
 
