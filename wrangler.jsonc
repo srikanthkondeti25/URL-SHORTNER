@@ -1,8 +1,14 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "backend",
-  "main": "src/index.ts",
-  "compatibility_date": "2026-06-30"
+  "main": "url-shortener/backend/src/index.ts",
+  "compatibility_date": "2026-06-30",
+  "build": {
+    "command": "npm install && npm run build --workspace=url-shortener/shared && npm run build --workspace=url-shortener/frontend"
+  },
+  "assets": {
+    "directory": "url-shortener/frontend/dist"
+  }
   // "compatibility_flags": [
   //   "nodejs_compat"
   // ],
