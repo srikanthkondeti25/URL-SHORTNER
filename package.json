@@ -1,0 +1,9 @@
+{
+  "name": "url-shortener-monorepo",
+  "private": true,
+  "workspaces": [
+    "url-shortener/backend",
+    "url-shortener/frontend",
+    "url-shortener/shared"
+  ]
+}
