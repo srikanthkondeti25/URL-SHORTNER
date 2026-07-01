@@ -179,7 +179,7 @@ app.post('/api/shorten', rateLimiter, async (c) => {
        );
        const result = await stmt.bind(shortCode, url, customAlias || null).run();
 
-       const baseUrl = c.env.BASE_URL;
+       const baseUrl = c.env.BASE_URL || new URL(c.req.url).origin;
 
        return c.json({
          id: result.meta.last_row_id,
@@ -195,6 +195,7 @@ app.post('/api/shorten', rateLimiter, async (c) => {
     }
 
   } catch (e) {
+    console.error('Error in /api/shorten:', e);
     return c.json({ error: 'Internal Server Error' }, 500);
   }
 });
